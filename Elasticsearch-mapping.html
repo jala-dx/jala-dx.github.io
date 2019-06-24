@@ -30,7 +30,6 @@ For ex., In the below example, there are two properties Image and image. One of 
 Hence one of them can be marked as "index:false". The other that is used to query, can be marked ask "keyword" because it is not 
 to be queried using "partial match" like "ima" imag" etc.
 
-    
 </PRE><PRE class="code">
 curl https://elasticsearch.service.apic.local:9200/system_dc-imageindex/_mapping?pretty --cert ./server.crt --key ./server8.key --cacert ./ApicCa.crt
   {
@@ -64,6 +63,7 @@ curl https://elasticsearch.service.apic.local:9200/system_dc-imageindex/_mapping
     }
   }
 }
+</PRE></PRE>
 
 The above can be modified to achieve better performance would be to do the following changes
 
@@ -94,7 +94,7 @@ The above can be modified to achieve better performance would be to do the follo
     }
   }
 }
-</PRE></PRE>
+
 </PRE></PRE>
 
 Note the below property is marked as "index": false. if a field cannot be indexed, then no need to specify keyword/text 
