@@ -20,17 +20,18 @@ pre.code {
         <PRE>
 
 In order to best optimize the JVM Memory in Elastic:
-  Mark the fields that are not used for querying as "index:false"
-  if the fields are queriable, mark them as "keyword" it it needs to searched using "full string" instead of "partial pattern match".
-  
+            
+</PRE><PRE class="code">            
+  1) Mark the fields that are not used for querying as "index:false"
+  2) if the fields are queriable, mark them as "keyword" it it needs to searched using "full string" instead of "partial pattern match".
+</PRE></PRE>
+    
   For ex., In the below example, there are two properties Image and image. One of the two Properties can be used to query.
   Hence one of them can be marked as "index:false". The other that is used to query, can be marked ask "keyword" because it is not 
   to be queried using "partial match" like "ima" imag" etc.
   
-
-  
-  </PRE><PRE class="code">
-  
+</PRE><PRE class="code">
+curl https://elasticsearch.service.apic.local:9200/system_dc-imageindex/_mapping?pretty --cert ./server.crt --key ./server8.key --cacert ./ApicCa.crt
   {
   "system_dc-imageindex" : {
     "mappings" : {
@@ -45,7 +46,7 @@ In order to best optimize the JVM Memory in Elastic:
               }
             }
           },
-          "image" : {
+          "image-data" : {
             "type" : "text",
             "fields" : {
               "keyword" : {
@@ -63,7 +64,7 @@ In order to best optimize the JVM Memory in Elastic:
   }
 }
 
-The resultant output of this would be
+The above to achieve better performance would be to do the following changes
 
  
 {
@@ -92,6 +93,17 @@ The resultant output of this would be
     }
   }
 }
+
+</PRE></PRE>
+
+</PRE><PRE class="code">
+Note the below property is marked as "index": false. if a field cannot be indexed, then no need to specify keyword/text 
+cuz it does not matter due to the fact that it cannot be indexed.
+
+          "image-data" : {
+            "type" : "text",
+             “index”: false
+          },
 
 </PRE></PRE>
 
