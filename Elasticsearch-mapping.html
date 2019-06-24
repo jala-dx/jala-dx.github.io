@@ -1,0 +1,100 @@
+<HTML>
+    <HEAD><TITLE>Elasticsearch Dynamic Mapping</TITLE>
+    <STYLE>
+pre.code {
+    display: block;
+    padding: 9.5px;
+    margin: 0 0 10px;
+    font-size: 13px;
+    line-height: 1.42857;
+    word-break: break-all;
+    word-wrap: break-word;
+    color: #333333;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 4px
+}
+    </STYLE>
+    </HEAD>
+    <BODY>
+        <PRE>
+
+In order to best optimize the JVM Memory in Elastic:
+  Mark the fields that are not used for querying as "index:false"
+  if the fields are queriable, mark them as "keyword" it it needs to searched using "full string" instead of "partial pattern match".
+  
+  For ex., In the below example, there are two properties Image and image. One of the two Properties can be used to query.
+  Hence one of them can be marked as "index:false". The other that is used to query, can be marked ask "keyword" because it is not 
+  to be queried using "partial match" like "ima" imag" etc.
+  
+
+  
+  </PRE><PRE class="code">
+  
+  {
+  "system_dc-imageindex" : {
+    "mappings" : {
+      "system_dc-imagetype" : {
+        "properties" : {
+          "Image" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "image" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "time" : {
+            "type" : "date"
+          }
+        }
+      }
+    }
+  }
+}
+
+The resultant output of this would be
+
+ 
+{
+  "system_dc-imageindex" : {
+    "mappings" : {
+      "system_dc-imagetype" : {
+        "properties" : {
+          "Image" : { ==> keep this as queriable index.
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword", ==> keep this as keyword so it can be queried using the full keyword “Image” in your case.
+                "ignore_above" : 256
+              }
+            }
+          },
+          "image-data" : {
+            "type" : "text",
+             “index”: false
+          },
+          "time" : {
+            "type" : "date"
+          }
+        }
+      }
+    }
+  }
+}
+
+</PRE></PRE>
+
+</PRE>
+    </BODY>
+</HTML>
