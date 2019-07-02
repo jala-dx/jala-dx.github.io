@@ -1,0 +1,115 @@
+<HTML>
+    <HEAD><TITLE>Elasticsearch Dynamic Mapping</TITLE>
+    <STYLE>
+pre.code {
+    display: block;
+    padding: 9.5px;
+    margin: 0 0 10px;
+    font-size: 13px;
+    line-height: 1.42857;
+    word-break: break-all;
+    word-wrap: break-word;
+    color: #333333;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 4px
+}
+    </STYLE>
+    </HEAD>
+    <BODY>
+        <PRE>
+
+In order to best optimize the JVM Memory in Elastic:
+            
+</PRE><PRE class="code">            
+  1) Mark the fields that are not used for querying as "index:false"
+  2) if the fields are queriable, mark them as "keyword" it it needs to searched using "full string" instead of "partial pattern match".   
+</PRE></PRE>
+    
+For ex., In the below example, there are two properties Image and image. One of the two Properties can be used to query.
+Hence one of them can be marked as "index:false". The other that is used to query, can be marked ask "keyword" because it is not 
+to be queried using "partial match" like "ima" imag" etc.
+
+</PRE><PRE class="code">
+curl https://elasticsearch.service.apic.local:9200/system_dc-imageindex/_mapping?pretty --cert ./server.crt --key ./server8.key --cacert ./ApicCa.crt
+  {
+  "system_dc-imageindex" : {
+    "mappings" : {
+      "system_dc-imagetype" : {
+        "properties" : {
+          "Image" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "image-data" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "time" : {
+            "type" : "date"
+          }
+        }
+      }
+    }
+  }
+}
+</PRE></PRE>
+
+The above can be modified to achieve better performance would be to do the following changes
+
+</PRE><PRE class="code"> 
+{
+  "system_dc-imageindex" : {
+    "mappings" : {
+      "system_dc-imagetype" : {
+        "properties" : {
+          "Image" : { ==> keep this as queriable index.
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword", ==> keep this as keyword so it can be queried using the full keyword “Image” in your case.
+                "ignore_above" : 256
+              }
+            }
+          },
+          "image-data" : {
+            "type" : "text",
+             “index”: false
+          },
+          "time" : {
+            "type" : "date"
+          }
+        }
+      }
+    }
+  }
+}
+
+</PRE></PRE>
+
+Note the below property is marked as "index": false. if a field cannot be indexed, then no need to specify keyword/text 
+cuz it does not matter due to the fact that it cannot be indexed.
+
+</PRE><PRE class="code">
+
+
+          "image-data" : {
+            "type" : "text",
+             “index”: false
+          },
+
+</PRE></PRE>
+
+</PRE>
+    </BODY>
+</HTML>
