@@ -1,0 +1,165 @@
+             
+# Create template                                  
+[root@ifav201-se1 admin]# curl https://100.80.81.109:9200/_cat/indices?v --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -khealth status index            uuid                   pri rep docs.count docs.deleted store.size pri.store.size                                                   
+green  open   hms-registerdb   hfzSPEq2Q8WPagKqSLoktw   2   2          0            0      1.5kb           530b                                       
+green  open   searchguard      v0tYTQP4QAmtwKTiqoPRXg   1   2          5            0     66.4kb         22.1kb                                       
+green  open   hms-diseasedb    yaOQAgXDTUKly4Vk01J8mQ   2   2          0            0      1.6kb           546b                                       
+green  open   hms-svcstatsdb   8h9Hzt0HSoqh8qgdXwNggg   2   2          0            0      1.3kb           460b                                       
+green  open   hms-heartbeatdb  4fbVPc9qSJuoGor3kKRjLg   2   2          1            0     16.6kb          5.5kb                                       
+green  open   hms-registeriddb t_WXjMWhSzqyBvBuf07v2A   2   2          0            0      1.5kb           534b                                       
+[root@ifav201-se1 admin]# curl -XPUT  --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -k https://100.80.81.109:9200/_template/mytemplate -H "content-type: application/json" -d @- <<EOF                                                                                                     
+> {                                                                                                                                                   
+>     "index_patterns": ["active-logs-*"],                                                                                                            
+>     "mappings" : {                                                                                                                                  
+>         "_doc" : {                                                                                                                                  
+>             "dynamic": "strict",                                                                                                                    
+>             "properties" : {                                                                                                                        
+>                 "user-id":    { "type": "keyword" },                                                                                                
+>                 "ip":         { "type": "ip" },                                                                                                     
+>                 "session-id": { "type": "keyword" },                                                                                                
+>                 "ts":         { "type": "date" },                                                                                                   
+>                 "url":        { "type": "text" },                                                                                                   
+>                 "method":     { "type": "keyword" }                                                                                                 
+>             }                                                                                                                                       
+>         }                                                                                                                                           
+>     },                                                                                                                                              
+>     "aliases": {                                                                                                                                    
+>         "search-logs": {}                                                                                                                           
+>     }                                                                                                                                               
+> }                                                                                                                                                   
+> EOF                                                                                                                                                 
+{"acknowledged":true}[root@ifav201-se1 admin]#                                                                                                        
+
+# Check if the template is created
+[root@ifav201-se1 admin]# curl  --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -k https://100.80.81.109:9200/_cat/templates           
+mytemplate                   [active-logs-*]                                                0                                                         
+
+# Check the indices
+[root@ifav201-se1 admin]# curl https://100.80.81.109:9200/_cat/indices?v --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -khealth status index            uuid                   pri rep docs.count docs.deleted store.size pri.store.size                                                   
+green  open   hms-registerdb   hfzSPEq2Q8WPagKqSLoktw   2   2          0            0      1.5kb           530b                                       
+green  open   searchguard      v0tYTQP4QAmtwKTiqoPRXg   1   2          5            0     66.4kb         22.1kb                                       
+green  open   hms-diseasedb    yaOQAgXDTUKly4Vk01J8mQ   2   2          0            0      1.6kb           546b                                       
+green  open   hms-svcstatsdb   8h9Hzt0HSoqh8qgdXwNggg   2   2          0            0      1.3kb           460b                                       
+green  open   hms-heartbeatdb  4fbVPc9qSJuoGor3kKRjLg   2   2          1            0     16.6kb          5.5kb                                       
+green  open   hms-registeriddb t_WXjMWhSzqyBvBuf07v2A   2   2          0            0      1.5kb           534b                                       
+
+# Create the index active-logs-1
+
+[root@ifav201-se1 admin]# curl -XPUT  --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -k https://100.80.81.109:9200/active-logs-1
+{"acknowledged":true,"shards_acknowledged":true,"index":"active-logs-1"}[root@ifav201-se1 admin]#                                               
+[root@ifav201-se1 admin]# curl https://100.80.81.109:9200/_cat/indices?v --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -k      
+health status index            uuid                   pri rep docs.count docs.deleted store.size pri.store.size                                 
+green  open   searchguard      v0tYTQP4QAmtwKTiqoPRXg   1   2          5            0     66.4kb         22.1kb                                 
+green  open   active-logs-1    ECKsL-0jRaimF_Rf7ocsQA   5   1          0            0      1.7kb           690b                                 
+green  open   hms-heartbeatdb  4fbVPc9qSJuoGor3kKRjLg   2   2          1            0     16.6kb          5.5kb                                 
+green  open   hms-registeriddb t_WXjMWhSzqyBvBuf07v2A   2   2          0            0      1.5kb           534b                                 
+green  open   hms-registerdb   hfzSPEq2Q8WPagKqSLoktw   2   2          0            0      1.5kb           530b                                 
+green  open   hms-diseasedb    yaOQAgXDTUKly4Vk01J8mQ   2   2          0            0      1.6kb           546b                                 
+green  open   hms-svcstatsdb   8h9Hzt0HSoqh8qgdXwNggg   2   2          0            0      1.3kb           460b                                 
+
+# Check if the index created picks up the dynamic template mytemplate created above
+[root@ifav201-se1 admin]# curl  --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -k https://100.80.81.109:9200/active-logs-1/_mapping?pretty                                                                                                                                                  
+{                                                                                                                                                     
+  "active-logs-1" : {                                                                                                                                 
+    "mappings" : {                                                                                                                                    
+      "_doc" : {                                                                                                                                      
+        "dynamic" : "strict",                                                                                                                         
+        "properties" : {                                                                                                                              
+          "ip" : {                                                                                                                                    
+            "type" : "ip"                                                                                                                             
+          },                                                                                                                                          
+          "method" : {                                                                                                                                
+            "type" : "keyword"                                                                                                                        
+          },                                                                                                                                          
+          "session-id" : {                                                                                                                            
+            "type" : "keyword"                                                                                                                        
+          },                                                                                                                                          
+          "ts" : {                                                                                                                                    
+            "type" : "date"                                                                                                                           
+          },                                                                                                                                          
+          "url" : {                                                                                                                                   
+            "type" : "text"                                                                                                                           
+          },                                                                                                                                          
+          "user-id" : {                                                                                                                               
+            "type" : "keyword"                                                                                                                        
+          }                                                                                                                                           
+        }                                                                                                                                             
+      }                                                                                                                                               
+    }                                                                                                                                                 
+  }                                                                                                                                                   
+                                                                                                                                                      
+}                                                                                                                                                     
+
+# Create the ALIAS active-logs for the index active-logs-1                                                                                                                                                                                                                                                  
+[root@ifav201-se1 admin]# curl -XPUT  --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -k https://100.80.81.109:9200/active-logs-1/_alias/active-logs                                                                                                                                         
+{"acknowledged":true}[root@ifav201-se1 admin]#                                                                                                        
+
+#Check if the alias is actually created                                                                                            
+[root@ifav201-se1 admin]# curl https://100.80.81.109:9200/_cat/aliases?v --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -kalias       index         filter routing.index routing.search                                                                                                     
+active-logs active-logs-1 -      -             -                                                                                                      
+search-logs active-logs-1 -      -             -                                                                                                      
+
+# POST  a bulk API                                                                                                                                                                                                                                                                                          
+[root@ifav201-se1 admin]# curl -XPOST  --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -k https://100.80.81.109:9200/active-logs/_doc/_bulk -H "content-type: application/x-ndjson" --data-binary "@./data"                                                                                  
+{"took":133,"errors":false,"items":[{"index":{"_index":"active-logs-1","_type":"_doc","_id":"RvFMs20B-GsZPTFhJq_O","_version":1,"result":"created","_shards":{"total":2,"successful":2,"failed":0},"_seq_no":1,"_primary_term":1,"status":201}},{"index":{"_index":"active-logs-1","_type":"_doc","_id":"R_FMs20B-GsZPTFhJq_P","_version":1,"result":"created","_shards":{"total":2,"successful":2,"failed":0},"_seq_no":0,"_primary_term":1,"status":201}},{"index":{"_index":"active-logs-1","_type":"_doc","_id":"SPFMs20B-GsZPTFhJq_P","_version":1,"result":"created","_shards":{"total":2,"successful":2,"failed":0},"_seq_no":1,"_primary_term":1,"status":201}},{"index":{"_index":"active-logs-1","_type":"_doc","_id":"SfFMs20B-GsZPTFhJq_P","_version":1,"result":"created","_shards":{"total":2,"successful":2,"failed":0},"_seq_no":0,"_primary_term":1,"status":201}},{"index":{"_index":"active-logs-1","_type":"_doc","_id":"SvFMs20B-GsZPTFhJq_P","_version":1,"result":"created","_shards":{"total":2,"successful":2,"failed":0},"_seq_no":1,"_primary_term":1,"status":201}}]}[root@ifav201-se1 admin]#                                                                                                                      
+[root@ifav201-se1 admin]# curl https://100.80.81.109:9200/_cat/indices?v --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -khealth status index            uuid                   pri rep docs.count docs.deleted store.size pri.store.size                                                   
+green  open   searchguard      v0tYTQP4QAmtwKTiqoPRXg   1   2          5            0     66.4kb         22.1kb                                       
+green  open   active-logs-1    ECKsL-0jRaimF_Rf7ocsQA   5   1          7            0     59.1kb         29.5kb                                       
+green  open   hms-heartbeatdb  4fbVPc9qSJuoGor3kKRjLg   2   2          1            0     16.6kb          5.5kb                                       
+green  open   hms-registeriddb t_WXjMWhSzqyBvBuf07v2A   2   2          0            0      1.5kb           534b                                       
+green  open   hms-registerdb   hfzSPEq2Q8WPagKqSLoktw   2   2          0            0      1.5kb           530b                                       
+green  open   hms-diseasedb    yaOQAgXDTUKly4Vk01J8mQ   2   2          0            0      1.6kb           546b                                       
+green  open   hms-svcstatsdb   8h9Hzt0HSoqh8qgdXwNggg   2   2          0            0      1.3kb           460b                                       
+[root@ifav201-se1 admin]# cat data                                                                                                                    
+{ "index" : {}}                                                                                                                                       
+{ "user-id": "30c1b62a", "ip": "10.76.54.93", "session-id": "08298f4a", "ts": "2017-12-31T08:52:19Z", "url": "httpss://www.example.com/api/reports/228422/1", "method": "PUT" }                                                                                                                             
+{ "index" : {}}                                                                                                                                       
+{ "user-id": "30c1b62a", "ip": "10.76.54.94", "session-id": "08298f4a", "ts": "2017-12-31T08:52:19Z", "url": "httpss://www.example.com/api/reports/228422/1", "method": "PUT" }                                                                                                                             
+{ "index" : {}}                                                                                                                                       
+{ "user-id": "30c1b62a", "ip": "10.76.54.95", "session-id": "08298f4a", "ts": "2017-12-31T08:52:19Z", "url": "httpss://www.example.com/api/reports/228422/1", "method": "PUT" }                                                                                                                             
+{ "index" : {}}                                                                                                                                       
+{ "user-id": "30c1b62a", "ip": "10.76.54.96", "session-id": "08298f4a", "ts": "2017-12-31T08:52:19Z", "url": "httpss://www.example.com/api/reports/228422/1", "method": "PUT" }                                                                                                                             
+{ "index" : {}}                                                                                                                                       
+{ "user-id": "30c1b62a", "ip": "10.76.54.97", "session-id": "08298f4a", "ts": "2017-12-31T08:52:19Z", "url": "httpss://www.example.com/api/reports/228422/1", "method": "PUT" }                                                                                                                             
+
+# Create a ROLLOVER API ie if doc count is > 5, create a new index and add docs to it                                                                                                                                                                                                                       
+[root@ifav201-se1 admin]#                                                                                                                             
+[root@ifav201-se1 admin]# curl -XPOST  --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -k https://100.80.81.109:9200/active-logs/_rollover -H "content-type: application/json" -d @- <<EOF                                                                                                   
+> {                                                                                                                                                   
+>  "conditions" : {                                                                                                                                   
+>     "max_docs" : 5                                                                                                                                  
+>   }                                                                                                                                                 
+> }                                                                                                                                                   
+> EOF                                                                                                                                                 
+{"old_index":"active-logs-1","new_index":"active-logs-000002","rolled_over":true,"dry_run":false,"acknowledged":true,"shards_acknowledged":true,"conditions":{"[max_docs: 5]":true}}[root@ifav201-se1 admin]#                                                                                               
+
+# Notice a new index active-logs-000002 is created and no documents are added. Future docs add to the 'acive-logs' alias will add docs
+# to the newly created index active-logs-000002                                                                                       
+
+[root@ifav201-se1 admin]# curl https://100.80.81.109:9200/_cat/indices?v --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -k
+health status index              uuid                   pri rep docs.count docs.deleted store.size pri.store.size                         
+green  open   active-logs-000002 IXqZusYJQq6i7l09BbmAUg   5   1          0            0      1.7kb           690b                         
+green  open   searchguard        v0tYTQP4QAmtwKTiqoPRXg   1   2          5            0     66.4kb         22.1kb
+green  open   active-logs-1      ECKsL-0jRaimF_Rf7ocsQA   5   1          7            0     59.1kb         29.5kb
+green  open   hms-heartbeatdb    4fbVPc9qSJuoGor3kKRjLg   2   2          1            0     16.6kb          5.5kb
+green  open   hms-registeriddb   t_WXjMWhSzqyBvBuf07v2A   2   2          0            0      1.5kb           534b
+green  open   hms-registerdb     hfzSPEq2Q8WPagKqSLoktw   2   2          0            0      1.5kb           530b
+green  open   hms-diseasedb      yaOQAgXDTUKly4Vk01J8mQ   2   2          0            0      1.6kb           546b
+green  open   hms-svcstatsdb     8h9Hzt0HSoqh8qgdXwNggg   2   2          0            0      1.3kb           460b
+
+# Add another Bulk API
+[root@ifav201-se1 admin]# curl -XPOST  --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -k https://100.80.81.109:9200/active-logs/_doc/_bulk -H "content-type: application/x-ndjson" --data-binary "@./data"
+{"took":72,"errors":false,"items":[{"index":{"_index":"active-logs-000002","_type":"_doc","_id":"ar1Ps20B8mVZNRjj5XxC","_version":1,"result":"created","_shards":{"total":2,"successful":2,"failed":0},"_seq_no":0,"_primary_term":1,"status":201}},{"index":{"_index":"active-logs-000002","_type":"_doc","_id":"a71Ps20B8mVZNRjj5XxC","_version":1,"result":"created","_shards":{"total":2,"successful":2,"failed":0},"_seq_no":0,"_primary_term":1,"status":201}},{"index":{"_index":"active-logs-000002","_type":"_doc","_id":"bL1Ps20B8mVZNRjj5XxC","_version":1,"result":"created","_shards":{"total":2,"successful":2,"failed":0},"_seq_no":0,"_primary_term":1,"status":201}},{"index":{"_index":"active-logs-000002","_type":"_doc","_id":"bb1Ps20B8mVZNRjj5XxC","_version":1,"result":"created","_shards":{"total":2,"successful":2,"failed":0},"_seq_no":0,"_primary_term":1,"status":201}},{"index":{"_index":"active-logs-000002","_type":"_doc","_id":"br1Ps20B8mVZNRjj5XxC","_version":1,"result":"created","_shards":{"total":2,"successful":2,"failed":0},"_seq_no":1,"_primary_term":1,"status":201}}]}[root@ifav201-se1 admin]#
+
+# Check if the Docs get added to the newly created index, notice 5 docs are added to active-logs-000002
+
+[root@ifav201-se1 admin]# curl https://100.80.81.109:9200/_cat/indices?v --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -khealth status index              uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   active-logs-000002 IXqZusYJQq6i7l09BbmAUg   5   1          5            0     40.2kb         20.1kb
+green  open   searchguard        v0tYTQP4QAmtwKTiqoPRXg   1   2          5            0     66.4kb         22.1kb
+green  open   active-logs-1      ECKsL-0jRaimF_Rf7ocsQA   5   1          7            0     59.1kb         29.5kb
+green  open   hms-heartbeatdb    4fbVPc9qSJuoGor3kKRjLg   2   2          1            0     16.6kb          5.5kb
+green  open   hms-registeriddb   t_WXjMWhSzqyBvBuf07v2A   2   2          0            0      1.5kb           534b
+green  open   hms-registerdb     hfzSPEq2Q8WPagKqSLoktw   2   2          0            0      1.5kb           530b
+green  open   hms-diseasedb      yaOQAgXDTUKly4Vk01J8mQ   2   2          0            0      1.6kb           546b
+green  open   hms-svcstatsdb     8h9Hzt0HSoqh8qgdXwNggg   2   2          0            0      1.3kb           460b
+[root@ifav201-se1 admin]#
