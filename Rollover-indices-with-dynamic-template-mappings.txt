@@ -162,4 +162,4 @@ green  open   hms-registeriddb   t_WXjMWhSzqyBvBuf07v2A   2   2          0      
 green  open   hms-registerdb     hfzSPEq2Q8WPagKqSLoktw   2   2          0            0      1.5kb           530b
 green  open   hms-diseasedb      yaOQAgXDTUKly4Vk01J8mQ   2   2          0            0      1.6kb           546b
 green  open   hms-svcstatsdb     8h9Hzt0HSoqh8qgdXwNggg   2   2          0            0      1.3kb           460b
-[root@ifav201-se1 admin]#
+
