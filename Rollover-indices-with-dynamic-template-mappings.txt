@@ -91,7 +91,7 @@ green  open   hms-svcstatsdb   8h9Hzt0HSoqh8qgdXwNggg   2   2          0        
 }                                                                                                                                                     
 
 # Create the ALIAS active-logs for the index active-logs-1                                                                                                                                                                                                                                                  
-[root@ifav201-se1 admin]# curl -XPUT  --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -k https://100.80.81.109:9200/active-logs-1/_alias/active-logs                                                                                                                                         
+# curl -XPUT  --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -k https://100.80.81.109:9200/active-logs-1/_alias/active-logs                                                                                                                                         
 {"acknowledged":true}[root@ifav201-se1 admin]#                                                                                                        
 
 #Check if the alias is actually created                                                                                            
@@ -123,8 +123,8 @@ green  open   hms-svcstatsdb   8h9Hzt0HSoqh8qgdXwNggg   2   2          0        
 { "user-id": "30c1b62a", "ip": "10.76.54.97", "session-id": "08298f4a", "ts": "2017-12-31T08:52:19Z", "url": "httpss://www.example.com/api/reports/228422/1", "method": "PUT" }                                                                                                                             
 
 # Create a ROLLOVER API ie if doc count is > 5, create a new index and add docs to it                                                                                                                                                                                                                       
-[root@ifav201-se1 admin]#                                                                                                                             
-[root@ifav201-se1 admin]# curl -XPOST  --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -k https://100.80.81.109:9200/active-logs/_rollover -H "content-type: application/json" -d @- <<EOF                                                                                                   
+                                                                                                                           
+# curl -XPOST  --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -k https://100.80.81.109:9200/active-logs/_rollover -H "content-type: application/json" -d @- <<EOF                                                                                                   
 > {                                                                                                                                                   
 >  "conditions" : {                                                                                                                                   
 >     "max_docs" : 5                                                                                                                                  
