@@ -7,7 +7,7 @@ green  open   hms-diseasedb    yaOQAgXDTUKly4Vk01J8mQ   2   2          0        
 green  open   hms-svcstatsdb   8h9Hzt0HSoqh8qgdXwNggg   2   2          0            0      1.3kb           460b                                       
 green  open   hms-heartbeatdb  4fbVPc9qSJuoGor3kKRjLg   2   2          1            0     16.6kb          5.5kb                                       
 green  open   hms-registeriddb t_WXjMWhSzqyBvBuf07v2A   2   2          0            0      1.5kb           534b                                       
-[root@ifav201-se1 admin]# curl -XPUT  --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -k https://100.80.81.109:9200/_template/mytemplate -H "content-type: application/json" -d @- <<EOF                                                                                                     
+[root@ admin]# curl -XPUT  --key ./server8.key --cert ./server.crt --cacert ./cacerts.crt -k https://100.80.81.109:9200/_template/mytemplate -H "content-type: application/json" -d @- <<EOF                                                                                                     
 > {                                                                                                                                                   
 >     "index_patterns": ["active-logs-*"],                                                                                                            
 >     "mappings" : {                                                                                                                                  
